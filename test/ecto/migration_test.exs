@@ -119,6 +119,14 @@ defmodule Ecto.MigrationTest do
               [{:add, :title, :string, []}]}
   end
 
+  test "forward: creates a table with custom primary key type" do
+    create(table(:posts, primary_key_type: :custom))
+    flush
+
+    assert {_, table, [{:add, :id, :custom, [primary_key: true]}]} = last_command()
+    assert table.primary_key_type == :custom
+  end
+
   test "forward: creates an empty table" do
     create table = table(:posts)
     flush

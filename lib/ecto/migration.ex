@@ -86,11 +86,11 @@ defmodule Ecto.Migration do
         create index(:weather, [:city], prefix: :north_america)
       end
 
-  Note: if using MySQL with a prefixed table, you must use the same prefix for the references since 
+  Note: if using MySQL with a prefixed table, you must use the same prefix for the references since
   cross database references are not supported.
 
-  For both MySQL and Postgres with a prefixed table, you must use the same prefix for the index field to ensure 
-  you index the prefix qualified table. 
+  For both MySQL and Postgres with a prefixed table, you must use the same prefix for the index field to ensure
+  you index the prefix qualified table.
 
   ## Transactions
 
@@ -146,7 +146,12 @@ defmodule Ecto.Migration do
     @moduledoc """
     Defines a table struct used in migrations.
     """
-    defstruct name: nil, prefix: nil, primary_key: true, engine: nil, options: nil
+    defstruct name: nil,
+              prefix: nil,
+              primary_key: true,
+              primary_key_type: :serial,
+              engine: nil,
+              options: nil
     @type t :: %__MODULE__{name: atom, prefix: atom, primary_key: boolean, engine: atom}
   end
 
@@ -223,7 +228,7 @@ defmodule Ecto.Migration do
       Runner.start_command({unquote(command), table})
 
       if table.primary_key do
-        add(:id, :serial, primary_key: true)
+        add(:id, table.primary_key_type, primary_key: true)
       end
 
       unquote(block)
@@ -296,7 +301,7 @@ defmodule Ecto.Migration do
   defp do_create(table, command) do
     columns =
       if table.primary_key do
-        [{:add, :id, :serial, primary_key: true}]
+        [{:add, :id, table.primary_key_type, primary_key: true}]
       else
         []
       end
@@ -353,6 +358,11 @@ defmodule Ecto.Migration do
   ## Options
 
     * `:primary_key` - when false, does not generate primary key on table creation
+    * `:primary_key_type` - the primary key type. Default is `:serial`, which
+      translates to "BIGINT UNSIGNED" on MySQL and "integer" on PostgreSQL.
+      You may use `:bigserial` on PostgreSQL to get a wider primary key range.
+      If doing so, don't forget to set the foreign key type in `references` to
+      this table accordingly.
     * `:engine` - customizes the table storage for supported databases. For MySQL,
       the default is InnoDB
     * `:options` - provide custom options that will be appended after generated
