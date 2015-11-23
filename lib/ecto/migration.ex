@@ -152,7 +152,13 @@ defmodule Ecto.Migration do
               primary_key_type: :serial,
               engine: nil,
               options: nil
-    @type t :: %__MODULE__{name: atom, prefix: atom, primary_key: boolean, engine: atom}
+    @type t :: %__MODULE__{
+      name: atom,
+      prefix: atom,
+      primary_key: boolean,
+      primary_key_type: atom,
+      engine: atom
+    }
   end
 
   defmodule Reference do
